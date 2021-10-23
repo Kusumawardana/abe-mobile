@@ -124,7 +124,7 @@ export default function DifferentScreen({ navigation }) {
     const ItemView = ({item}) => {
         return(
             <TouchableOpacity
-                onPress={() => navigation.navigate('DetailDifferent', {data: item})}
+                onPress={() => navigation.navigate('DetailDifferent', {data: item, status})}
                 onLongPress={()=> option(item)}
                 style={{flex: 0,flexDirection:'row',backgroundColor:'white',width:'100%',borderRadius: 15,padding: 10,marginBottom: 15}}
             >

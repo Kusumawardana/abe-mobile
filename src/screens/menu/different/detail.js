@@ -1,21 +1,61 @@
 import * as React from 'react';
-import { View, Text, Platform, StatusBar, Image, TouchableOpacity, Modal, Dimensions } from 'react-native';
+import { View, Text, Platform, StatusBar, Image, TouchableOpacity, Modal, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Button, Body, Header, Icon, Left, Right, Title, Subtitle } from 'native-base';
 import Tts from 'react-native-tts';
 import { ScrollView } from 'react-native-gesture-handler';
+import actionget from '../../../components/get';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import action from '../../../components/function';
 const color = require('../../../routes/color');
 const API_KEY = require('../../../routes/api');
+const { width, height } = Dimensions.get('screen');
 
 export default function DifferentDetailScreen({ navigation, route }) {
     const [modalVisible, setModalVisible] = React.useState(false);
     const [modalVisible2, setModalVisible2] = React.useState(false);
+    const [comparison, setComparison] = React.useState({});
+    const [isDiffrent, setIsDiffrent] = React.useState(false);
+    const [user, setUser] = React.useState(null);
+    const [loading, setLoading] = React.useState(false);
+
+    const getComparison = async () => {
+        const users = await AsyncStorage.getItem("users");
+        setUser(users);
+        actionget(`${API_KEY.COMPARISON}${route.params.data.id}/${users}?is_admin=${route.params.status === 'Yayasan'}`)
+            .then(value => {
+                setComparison(value.data.data);
+                setIsDiffrent(route.params.data.id !== value.data.data.id);
+            })
+            .catch(err => {
+                console.log(err.response);
+            })
+    }
+
+    const handleAnswer = (answer) => {
+        const data = new FormData();
+        setLoading(true);
+        if (answer === !isDiffrent) {
+            data.append('answer', 'benar');
+        } else {
+            data.append('answer', 'salah');
+        }
+        action(`${API_KEY.DIFFRENT_NOTIFY_ANSWER}${route.params.data.id}/${comparison?.id}/${user}`, data, 'POST')
+            .then(async () => {
+                await getComparison();
+                setLoading(false);
+            }).catch(err => {
+                setLoading(false);
+                console.log(err.response);
+            })
+    }
 
     React.useEffect(() => {
         Tts.setDefaultLanguage('id-ID');
-        console.log(route.params)
+        getComparison();
     }, []);
+
     const speak = (item) => {
         Tts.speak(item);
     }
@@ -33,7 +73,7 @@ export default function DifferentDetailScreen({ navigation, route }) {
                 <View style={{ backgroundColor: 'rgba(52, 52, 52, 0.3)', flex: 1 }}>
                     <View style={{ backgroundColor: 'transparent', margin: 20, flex: 1, marginTop: 100 }}>
                         <Image
-                            source={{ uri: 'https://images.unsplash.com/photo-1593642532973-d31b6557fa68?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1480&q=80' }}
+                            source={{ uri: route.params.data.attachment1 }}
                             style={{ width: '100%', height: 300, resizeMode: 'cover' }}
                         />
                         <TouchableOpacity
@@ -56,10 +96,9 @@ export default function DifferentDetailScreen({ navigation, route }) {
             >
                 <View style={{ backgroundColor: 'rgba(52, 52, 52, 0.3)', flex: 1 }}>
                     <View style={{ backgroundColor: 'transparent', margin: 20, flex: 1, marginTop: 100 }}>
-                        <Text>asdasdasdasdadasdad</Text>
                         <Image
-                            source={{ uri: 'https://images.unsplash.com/photo-1593642532973-d31b6557fa68?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1480&q=80' }}
-                            style={{ width: '100%', height: 300, resizeMode: 'cover', backgroundColor: '#000' }}
+                            source={{ uri: route.params.data.attachment2 }}
+                            style={{ width: '100%', height: 300, resizeMode: 'cover', }}
                         />
                         <TouchableOpacity
                             style={{ backgroundColor: color.Gradientfirst, marginTop: 10, alignItems: 'center', borderRadius: 5, padding: 10, }}
@@ -86,12 +125,12 @@ export default function DifferentDetailScreen({ navigation, route }) {
             <ScrollView>
                 <View style={{ backgroundColor: color.GradientSecond, padding: 10 }}>
                     <View style={{ padding: 10 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: 50, backgroundColor: '#000' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: 50, }}>
                             <TouchableOpacity
                                 onPress={() => setModalVisible(true)}
                             >
                                 <Image
-                                    source={{ uri: 'https://images.unsplash.com/photo-1593642532973-d31b6557fa68?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1480&q=80' }}
+                                    source={{ uri: route.params.data.attachment1 }}
                                     style={{ width: 100, height: 100, alignSelf: 'center', borderRadius: 5 }}
                                 />
                             </TouchableOpacity>
@@ -100,7 +139,7 @@ export default function DifferentDetailScreen({ navigation, route }) {
                                 onPress={() => setModalVisible2(true)}
                             >
                                 <Image
-                                    source={{ uri: 'https://images.unsplash.com/photo-1593642532973-d31b6557fa68?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1480&q=80' }}
+                                    source={{ uri: route.params.data.attachment2 }}
                                     style={{ width: 100, height: 100, alignSelf: 'center', borderRadius: 5 }}
                                 />
                             </TouchableOpacity>
@@ -123,30 +162,39 @@ export default function DifferentDetailScreen({ navigation, route }) {
                 </View>
                 <View>
                     <Image
-                        source={{ uri: 'https://images.unsplash.com/photo-1593642532973-d31b6557fa68?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1480&q=80' }}
-                        style={{ maxWidth: 700, width: (Dimensions.get('screen').width / 2), maxHeight: 700, height: (Dimensions.get('screen').width / 2), alignSelf: 'center', borderRadius: 5, marginBottom: 20 }}
+                        source={{ uri: route.params.data.attachment1 }}
+                        style={{ maxWidth: 700, width: (width / 2), maxHeight: 700, height: (width / 2), alignSelf: 'center', borderRadius: 5, marginBottom: 20, borderWidth: 2, borderColor: '#10B981' }}
                     />
                     <Image
-                        source={{ uri: 'https://images.unsplash.com/photo-1593642532973-d31b6557fa68?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1480&q=80' }}
-                        style={{ maxWidth: 700, width: (Dimensions.get('screen').width / 2), maxHeight: 700, height: (Dimensions.get('screen').width / 2), alignSelf: 'center', borderRadius: 5, marginBottom: 20 }}
+                        source={{ uri: comparison?.attachment2 }}
+                        style={{ maxWidth: 700, width: (width / 2), maxHeight: 700, height: (width / 2), alignSelf: 'center', borderRadius: 5, marginBottom: 20, borderWidth: 2, borderColor: (isDiffrent ? '#EF4444' : '#10B981') }}
                     />
-                    <View style={{ maxWidth: 700, width: (Dimensions.get('screen').width / 2), alignSelf: 'center', flexDirection: 'row', marginBottom: 20 }}>
+                    <View style={{ maxWidth: 700, width: (width / 2), alignSelf: 'center', flexDirection: 'row', marginBottom: 20 }}>
 
                         <TouchableOpacity
-                            onPress={() => speak(route.params.data.judul)}
+                            onPress={() => handleAnswer(true)}
                             style={{ backgroundColor: '#10B981', flex: 1, height: 60, alignItems: 'center', justifyContent: 'center', borderRadius: 10, marginRight: 10, color: '#FFF' }}
                         >
-                            <Text style={{ color: '#FFF' }}>Benar</Text>
+                            <Text style={{ color: '#FFF' }}>Sama</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            onPress={() => speak(route.params.data.judul)}
+                            onPress={() => handleAnswer(false)}
                             style={{ backgroundColor: '#EF4444', flex: 1, height: 60, alignItems: 'center', justifyContent: 'center', borderRadius: 10, color: '#FFF' }}
                         >
-                            <Text style={{ color: '#FFF' }}>Salah</Text>
+                            <Text style={{ color: '#FFF' }}>Berbeda</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </ScrollView>
+            {
+                loading && (
+                    <View style={{ backgroundColor: 'rgba(52, 52, 52, 0.3)', position: 'absolute', height, width, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ backgroundColor: 'white', width: 100, height: 100, borderRadius: 20, alignItems: 'center', justifyContent: 'center' }}>
+                            <ActivityIndicator size="large" color={'green'} />
+                        </View>
+                    </View>
+                )
+            }
         </View>
     );
 }
