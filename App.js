@@ -37,6 +37,7 @@ import addDifferentScreen from './src/screens/menu/different/adddifferent';
 import DifferentDetailScreen from './src/screens/menu/different/detail';
 import ShareDetailScreen from './src/screens/menu/share/detail';
 import NotificationScreen from './src/screens/menu/notification/notification';
+import NotificationDetailScreen from './src/screens/menu/notification/detail';
 
 const StackAuth = createStackNavigator();
 
@@ -186,6 +187,7 @@ function Menu() {
         <Stack.Screen name="TerapisAddPerkembangan" component={AddPerkembanganAnakScreen} options={{headerShown: false}} />
         <Stack.Screen name="TerapisDetailPerkembangan" component={DetailPerkembanganAnakScreen} options={{headerShown: false}} />
         <Stack.Screen name="NotificationList" component={NotificationScreen} options={{headerShown: false}} />
+        <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} options={{headerShown: false}} />
       </Stack.Navigator>
   );
 }
