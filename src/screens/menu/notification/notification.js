@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { View, Text, Platform, StatusBar, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, Platform, StatusBar, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Button, Body, Header, Icon, Left, Right, Subtitle, Title } from 'native-base';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import actionget from '../../../components/get';
 import moment from 'moment';
@@ -69,7 +68,8 @@ export default function NotificationScreen({ navigation }) {
     const renderNotif = ({ item, index }) => {
         return (
             <TouchableOpacity
-                style={{ backgroundColor: 'white', margin: 10, padding: 10, borderRadius: 10, flexDirection: 'row' }}
+                onPress={() => navigation.navigate('NotificationDetail', {id: item.id})}
+                style={{ backgroundColor: 'white', margin: 10, padding: 10, borderRadius: 10, flexDirection: 'row', zIndex: 99 }}
             >
                 <View
                     style={{ backgroundColor: '#FEE2E4', padding: 10, marginRight: 20, borderRadius: 10 }}
@@ -118,19 +118,6 @@ export default function NotificationScreen({ navigation }) {
                     onEndReached={fetch}
                     onEndReachedThreshold={0.1}
                 />
-                {/* <TouchableOpacity
-                    style={{ backgroundColor: 'white', margin: 10, padding: 10, borderRadius: 10, flexDirection: 'row' }}
-                >
-                    <View
-                        style={{ backgroundColor: '#FEE2E4', padding: 10, marginRight: 20, borderRadius: 10 }}
-                    >
-                        <Icon ios='notifications' android="notifications" type={'Ionicons'} style={{ fontSize: 20, color: '#F64E60' }} />
-                    </View>
-                    <View style={{ justifyContent: 'center' }}>
-                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Judul</Text>
-                        <Text style={{ color: 'grey' }}>3 monts ago</Text>
-                    </View>
-                </TouchableOpacity> */}
             </View>
         </View>
     );
