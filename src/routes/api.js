@@ -1,10 +1,10 @@
 // dev server
-// var API_URL = 'http://10.0.2.2:8001';
-// var API_URLNEW = 'http://10.0.2.2:8000';
+var API_URL = 'http://10.0.2.2:8001';
+var API_URLNEW = 'http://10.0.2.2:8000';
 
 //prod server
-var API_URL = 'http://api.intiru.com';
-var API_URLNEW = 'http://abe.intiru.com';
+// var API_URL = 'http://api.intiru.com';
+// var API_URLNEW = 'http://abe.intiru.com';
 
 var _config = {
     LOGIN : API_URL+'/login/proses', //post
@@ -39,7 +39,8 @@ var _config = {
     DIFFERENTCREATE : API_URLNEW + '/perbedaan/apicreate', // post
     DIFFERENTDELETE : API_URLNEW + '/perbedaan/apidelete/',
     COMPARISON : API_URL + '/perbedaan/comparison/',
-    DIFFRENT_NOTIFY_ANSWER : API_URL + '/perbedaan/notify/'
+    DIFFRENT_NOTIFY_ANSWER : API_URL + '/perbedaan/notify/',
+    NOTIFICATION : API_URL + '/notifikasi/',
 };
 
 function getEnvironment() {
